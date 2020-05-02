@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src=https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.3.0/math.min.js></script>
+    <meta charset=utf-8 />
+    <title>COVID-19 Infection Data</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+    
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: whitesmoke;
+            font-family: Lato, sans-serif;
+            color: #0D0000;
+        }
+        header {
+            padding: 6px 10%;
+        }
+        h1 {
+            display: inline-block;
+            margin-right: 20px;
+            color: #001323;
+        }
+        h2 {
+            display: inline-block;
+            color: #001323;
+        }
+        #map {
+            width: 80%;
+            height: 540px;
+            margin: 10px auto;
+        }
+        footer {
+            padding: 6px 10%;
+            width: 80%;
+        }
+        p {
+            font-size: 1em;
+            color: #001323;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>COVID-19 Cases and Deaths</h1>
+        <h2>Stay the f*ck inside!</h2>
+    </header>
+
+    <div id='map'></div>
+    
+    
+
+    <script src="countiescovidcentroids.js"></script>
+    <script>
+
+        
+      var map = L.map('map', {
+          center: [36,-94],
+          zoom: 4,
+      });
+
+      var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+          subdomains: 'abcd',
+          maxZoom: 19
+      });  
+      
+      tiles.addTo(map);
+        
+   
+
+        
+var casesLayer = L.geoJson(covidData, {
+          pointToLayer: function(feature,latlng,) {
+              
+              var numberCases = feature.properties.Cases.toLocaleString()
+              var name = feature.properties.NAME
+              var popup = ("<b>"+name+ " county"+"</b><br>"
+              +numberCases+ " people infected" + "<br>")
+              
+              return L.circleMarker(latlng, {
+                  weight: 2,
+                  fillOpacity: .5,
+                  radius: getRadius(feature.properties.Cases)
+              }).bindPopup(popup);   
+          }}).addTo(map);
+    
+var deathLayer = L.geoJson(covidData, { 
+          pointToLayer: function(feature,latlng,) {
+              
+              var numberDeaths = feature.properties.Deaths.toLocaleString()
+              var name = feature.properties.NAME
+              var popup = ("<b>"+name+ " county"+"</b><br>"
+               +numberDeaths+ " deaths" + "<br>")
+              
+              return L.circleMarker(latlng, {
+                 weight: 2,
+                 fillOpacity: .5,
+                 radius: getRadius(feature.properties.Deaths)
+              }).bindPopup(popup);   
+          }}).addTo(map);
+        
+
+        
+
+        
+
+        
+        
+        
+
+      
+
+
+function getRadius(val){
+var radius = Math.sqrt(val/Math.PI);
+return radius *.5   
+    }
+        
+
+deathLayer.setStyle({
+    color: 'red',
+    fillColor: 'red'
+});
+casesLayer.setStyle({
+    color: 'blue',
+    fillColor: 'blue',
+    opacity: .3
+});
+
+        
+var allLayers = {
+    "Deaths" : deathLayer,
+    "Cases" : casesLayer,
+}
+
+
+L.control.layers(null, allLayers, {collapsed:false}).addTo(map);
+        
+        
+          
+    </script>
+    
+</body>
+
+</html>
